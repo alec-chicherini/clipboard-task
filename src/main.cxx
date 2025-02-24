@@ -1,12 +1,13 @@
-#include <QCommandLineParser>
-#include <QCoreApplication>
-#include <QDebug>
 #include <clipboard_qt.h>
 #include <clipboard_xcb.h>
+#include <QCommandLineParser>
+#include <QApplication>
+#include <QDebug>
+
 int main(int argc, char *argv[]) {
-  QCoreApplication app(argc, argv);
-  QCoreApplication::setApplicationName("clipboard-task");
-  QCoreApplication::setApplicationVersion("01.00");
+  QApplication app(argc, argv);
+  QApplication::setApplicationName("clipboard-task");
+  QApplication::setApplicationVersion("01.00");
 
   QCommandLineParser parser;
   parser.setApplicationDescription("clipboard-task");
@@ -39,33 +40,31 @@ int main(int argc, char *argv[]) {
   bool is_set_file = parser.isSet(option_file);
   bool is_set_string = parser.isSet(option_string);
 
-  if (is_set_xcb && is_set_qt || !is_set_xcb && !is_set_qt) {
-    qDebug()
-        << "ОШИБКА. qt или xcb не указано. Выберите библиотеку qt или xcb\n";
+  if ((is_set_xcb && is_set_qt) || (!is_set_xcb && !is_set_qt)) {
+    qDebug() << "ОШИБКА выбора библиотеки. Выберите библиотеку qt или xcb. "
+                "\nclipboard-task --help \n";
     exit(1);
   }
-  if (is_set_file && is_set_string || !is_set_file && !is_set_string) {
-    qDebug() << "ОШИБКА.Укажите одну из опций file или string\n";
+  if ((is_set_file && is_set_string) || (!is_set_file && !is_set_string)) {
+    qDebug() << "ОШИБКА.Укажите одну из опций file или string\nclipboard-task "
+                "--help \n";
     exit(1);
   }
 
-  if (is_set_file) {
-    QString file_path = parser.value(option_file);
-    qDebug() << "file_path = " << file_path;
-    if (is_set_qt) {
-      // qt copy file
-    } else if (is_set_xcb) {
-      // xcb copy file
-    }
-  } else if (is_set_string) {
+  IClipboard *clipboard;
+  if (is_set_qt) {
+    clipboard = new ClipboardQt();
+  } else if (is_set_xcb) {
+    clipboard = new ClipboardXcb();
+  }
+
+  if (is_set_string) {
     QString string_value = parser.value(option_string);
-    qDebug() << "string_value = " << string_value;
-    if (is_set_qt) {
-      // qt copy string
-    } else if (is_set_xcb) {
-      // xcb copy string
-    }
+    clipboard->CopyString(string_value);
+  } else if (is_set_file) {
+    QString file_path = parser.value(option_file);
+    clipboard->CopyFile(file_path);
   }
 
-  app.exec();
+  return app.exec();
 }
