@@ -115,6 +115,6 @@ void ClipboardX11::CopyString(const QString& string) {
 
   XCloseDisplay(display);
 }
-}
+
 
 void ClipboardX11::CopyFile(const QString&) {}
