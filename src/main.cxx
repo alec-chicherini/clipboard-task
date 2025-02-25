@@ -1,5 +1,6 @@
 #include <clipboard_qt.h>
 #include <clipboard_xcb.h>
+#include <clipboard_x11.h>
 
 #include <QApplication>
 #include <QCommandLineParser>
