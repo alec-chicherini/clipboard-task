@@ -17,6 +17,8 @@ set(SOURCE_FILES__
     clipboard_xcb.cxx 
     clipboard_qt.h 
     clipboard_qt.cxx
+    clipboard_x11.h 
+    clipboard_x11.cxx
 )
 list(TRANSFORM SOURCE_FILES__ PREPEND "src/")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES__})

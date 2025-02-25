@@ -1,8 +1,9 @@
 #include <clipboard_qt.h>
-#include <QClipboard>
-#include <QMimeData>
+
 #include <QApplication>
+#include <QClipboard>
 #include <QDebug>
+#include <QMimeData>
 void ClipboardQt::CopyString(const QString &string_value) {
   QClipboard *clipboard = QApplication::clipboard();
   clipboard->setText(string_value, QClipboard::Clipboard);
