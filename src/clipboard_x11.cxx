@@ -82,10 +82,10 @@ void ClipboardX11::CopyString(const QString& string) {
                request->target == kAtomXAString ||
                request->target == kAtomCompoundText ||
                request->target == kAtomString) {
-        cout << "request->selection="
+        qDebug() << "request->selection="
              << XGetAtomName(display, request->selection)
              << " id =" << request->selection << "\n";
-        cout << "request->target=" << XGetAtomName(display, request->target)
+        qDebug() << "request->target=" << XGetAtomName(display, request->target)
              << " id =" << request->target << "\n";
 
         QByteArray byte_array = string.toUtf8();
@@ -97,7 +97,7 @@ void ClipboardX11::CopyString(const QString& string) {
 
         response.xselection.property = request->property;
       } else {
-        cout << "request->target=" << XGetAtomName(display, request->target)
+        qDebug() << "request->target=" << XGetAtomName(display, request->target)
              << " id =" << request->target << "\n";
       }
 
@@ -108,7 +108,7 @@ void ClipboardX11::CopyString(const QString& string) {
       response.xselection.time = request->time;
 
       if (!XSendEvent(display, request->requestor, 1, 0, &response)) {
-        cout << "XSendEvent() = null\n";
+        qDebug() << "XSendEvent() = null\n";
       };
       XFlush(display);
     }
