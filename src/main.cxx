@@ -1,7 +1,9 @@
 #include <clipboard_qt.h>
 #include <clipboard_xcb.h>
-#include <QCommandLineParser>
+#include <clipboard_x11.h>
+
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QDebug>
 
 int main(int argc, char *argv[]) {
@@ -22,6 +24,10 @@ int main(int argc, char *argv[]) {
       "qt", QCoreApplication::translate("main", "Use Qt lib"));
   parser.addOption(option_use_qt);
 
+  QCommandLineOption option_use_x11(
+      "x11", QCoreApplication::translate("main", "Use X11/Xlib"));
+  parser.addOption(option_use_x11);
+
   QCommandLineOption option_file(
       "file", QCoreApplication::translate("main", "File to copy from <path>"),
       QCoreApplication::translate("main", "path"));
@@ -37,12 +43,17 @@ int main(int argc, char *argv[]) {
 
   bool is_set_xcb = parser.isSet(option_use_xcb);
   bool is_set_qt = parser.isSet(option_use_qt);
+  bool is_set_x11 = parser.isSet(option_use_x11);
   bool is_set_file = parser.isSet(option_file);
   bool is_set_string = parser.isSet(option_string);
 
-  if ((is_set_xcb && is_set_qt) || (!is_set_xcb && !is_set_qt)) {
-    qDebug() << "ОШИБКА выбора библиотеки. Выберите библиотеку qt или xcb. "
-                "\nclipboard-task --help \n";
+  int number_of_libs = static_cast<int>(is_set_xcb) +
+                       static_cast<int>(is_set_qt) +
+                       static_cast<int>(is_set_x11);
+  if (number_of_libs != 1) {
+    qDebug()
+        << "ОШИБКА выбора библиотеки. Выберите библиотеку qt или xcb или x11. "
+           "\nclipboard-task --help \n";
     exit(1);
   }
   if ((is_set_file && is_set_string) || (!is_set_file && !is_set_string)) {
@@ -56,6 +67,8 @@ int main(int argc, char *argv[]) {
     clipboard = new ClipboardQt();
   } else if (is_set_xcb) {
     clipboard = new ClipboardXcb();
+  } else if (is_set_x11) {
+    clipboard = new ClipboardX11();
   }
 
   if (is_set_string) {

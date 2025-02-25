@@ -9,6 +9,7 @@ add_compile_options(
 )
 project(clipboard-task)
 set(CMAKE_AUTOMOC ON)
+find_package(X11 REQUIRED)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 set(SOURCE_FILES__ 
@@ -17,10 +18,12 @@ set(SOURCE_FILES__
     clipboard_xcb.cxx 
     clipboard_qt.h 
     clipboard_qt.cxx
+    clipboard_x11.h 
+    clipboard_x11.cxx
 )
 list(TRANSFORM SOURCE_FILES__ PREPEND "src/")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES__})
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets stdc++fs)
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets stdc++fs X11)
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
