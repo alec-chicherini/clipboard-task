@@ -1,10 +1,9 @@
-#include <X11/Xlib.h>
-#include <clipboard_x11.h>
-#include <unistd.h>
-
 #include <QDebug>
 #include <climits>
 #include <cstring>
+#include <X11/Xlib.h>
+#include <clipboard_x11.h>
+#include <unistd.h>
 void ClipboardX11::CopyString(const QString& string) {
   // #include <iostream>
   //  #include <format>
