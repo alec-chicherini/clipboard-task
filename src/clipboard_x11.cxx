@@ -122,6 +122,8 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
   const Atom kAtomTextUriList = XInternAtom(display, "text/uri-list", False);
   const Atom kXSpecialGnomeCopiedFiles =
       XInternAtom(display, "x-special/gnome-copied-files", False);
+  const Atom kXSpecialMateCopiedFiles =
+      XInternAtom(display, "x-special/mate-copied-files", False);
 
   CheckPropName(kAtomTargets);
   CheckPropName(kAtomClipboard);
@@ -129,6 +131,7 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
   CheckPropName(kAtomUtf8String2);
   CheckPropName(kAtomTextUriList);
   CheckPropName(kXSpecialGnomeCopiedFiles);
+  CheckPropName(kXSpecialMateCopiedFiles);
   CheckPropName(kAtomMultiple);
   CheckPropName(kAtomSaveTargets);
 
@@ -146,7 +149,9 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
       if (request->target == kAtomTargets) {
         const Atom targets[] = {
             kAtomTargets,     kAtomUtf8String,           kAtomUtf8String2,
-            kAtomTextUriList, kXSpecialGnomeCopiedFiles, kAtomMultiple,
+                                kAtomTextUriList,
+                                kXSpecialGnomeCopiedFiles,
+                                kXSpecialMateCopiedFiles, kAtomMultiple,
             kAtomSaveTargets};
 
         XChangeProperty(display, request->requestor, request->property, 4, 32,
@@ -159,7 +164,8 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
       } else if (request->target == kAtomTextUriList ||
                  request->target == kAtomUtf8String) {
         byte_array_to_send = (file_path.prepend("file://")).toUtf8();
-      } else if (request->target == kXSpecialGnomeCopiedFiles) {
+      } else if (request->target == kXSpecialGnomeCopiedFiles ||
+                 request->target == kXSpecialMateCopiedFiles) {
         byte_array_to_send =
             (QString("copy\n%1").arg(file_path)).toUtf8();
       } else if (request->target == kAtomMultiple ||
