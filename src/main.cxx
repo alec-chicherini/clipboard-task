@@ -1,5 +1,4 @@
 #include <clipboard_qt.h>
-#include <clipboard_xcb.h>
 #include <clipboard_x11.h>
 
 #include <QApplication>
@@ -15,10 +14,6 @@ int main(int argc, char *argv[]) {
   parser.setApplicationDescription("clipboard-task");
   parser.addHelpOption();
   parser.addVersionOption();
-
-  QCommandLineOption option_use_xcb(
-      "xcb", QCoreApplication::translate("main", "Use xcb lib"));
-  parser.addOption(option_use_xcb);
 
   QCommandLineOption option_use_qt(
       "qt", QCoreApplication::translate("main", "Use Qt lib"));
@@ -41,18 +36,16 @@ int main(int argc, char *argv[]) {
   parser.process(app);
   const QStringList args = parser.positionalArguments();
 
-  bool is_set_xcb = parser.isSet(option_use_xcb);
   bool is_set_qt = parser.isSet(option_use_qt);
   bool is_set_x11 = parser.isSet(option_use_x11);
   bool is_set_file = parser.isSet(option_file);
   bool is_set_string = parser.isSet(option_string);
 
-  int number_of_libs = static_cast<int>(is_set_xcb) +
-                       static_cast<int>(is_set_qt) +
-                       static_cast<int>(is_set_x11);
+  int number_of_libs =
+      static_cast<int>(is_set_qt) + static_cast<int>(is_set_x11);
   if (number_of_libs != 1) {
     qDebug()
-        << "ОШИБКА выбора библиотеки. Выберите библиотеку qt или xcb или x11. "
+        << "ОШИБКА выбора библиотеки. Выберите библиотеку qt или x11. "
            "\nclipboard-task --help \n";
     exit(1);
   }
@@ -65,8 +58,6 @@ int main(int argc, char *argv[]) {
   IClipboard *clipboard;
   if (is_set_qt) {
     clipboard = new ClipboardQt();
-  } else if (is_set_xcb) {
-    clipboard = new ClipboardXcb();
   } else if (is_set_x11) {
     clipboard = new ClipboardX11();
   }

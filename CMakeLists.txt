@@ -14,8 +14,6 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 set(SOURCE_FILES__ 
     main.cxx 
-    clipboard_xcb.h
-    clipboard_xcb.cxx 
     clipboard_qt.h 
     clipboard_qt.cxx
     clipboard_x11.h 
