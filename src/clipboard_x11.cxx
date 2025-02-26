@@ -1,8 +1,6 @@
 #include <QDebug>
 #include <X11/Xlib.h>
 #include <clipboard_x11.h>
-
-
 #include <stdexcept>
 
 void CheckPropName(const Atom& atom,
@@ -48,9 +46,8 @@ void ClipboardX11::CopyString(const QString& string_to_send) {
 
   XSetSelectionOwner(display, kAtomClipboard, window_client, CurrentTime);
   qDebug() << "Close app. Ctrl+C";
-  Bool running = True;
   XEvent event;
-  while (running) {
+  while (true) {
     XNextEvent(display, &event);
     if (event.type == SelectionRequest) {
       const XSelectionRequestEvent* request = &event.xselectionrequest;
@@ -99,8 +96,6 @@ void ClipboardX11::CopyString(const QString& string_to_send) {
       XFlush(display);
     }
   }
-
-  XCloseDisplay(display);
 }
 
 void ClipboardX11::CopyFile(const QString& file_path_rhs) {
@@ -139,15 +134,15 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
 
   XSetSelectionOwner(display, kAtomClipboard, window_client, CurrentTime);
   qDebug() << "Do not close app untill file in clipboard";
-  Bool running = True;
   XEvent event;
-  while (running) {
+  while (true) {
     XNextEvent(display, &event);
     if (event.type == SelectionRequest) {
       const XSelectionRequestEvent* request = &event.xselectionrequest;
 
       XEvent response = {SelectionNotify};
       response.xselection.property = 0;
+      QByteArray byte_array_to_send;
       if (request->target == kAtomTargets) {
         const Atom targets[] = {
             kAtomTargets,     kAtomUtf8String,           kAtomUtf8String2,
@@ -160,34 +155,25 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
 
         response.xselection.property = request->property;
       } else if (request->target == kAtomUtf8String2 ) {
-        QByteArray byte_array_to_send = file_path.toUtf8();
-        XChangeProperty(display, request->requestor, request->property,
-                        request->target, 8, PropModeReplace,
-                        (unsigned char*)byte_array_to_send.constData(),
-                        byte_array_to_send.size());
-
-        response.xselection.property = request->property;
+        byte_array_to_send = file_path.toUtf8();
       } else if (request->target == kAtomTextUriList ||
                  request->target == kAtomUtf8String) {
-        QByteArray byte_array_to_send = (file_path.prepend("file://")).toUtf8();
-        XChangeProperty(display, request->requestor, request->property,
-                        request->target, 8, PropModeReplace,
-                        (unsigned char*)byte_array_to_send.constData(),
-                        byte_array_to_send.size());
-
-        response.xselection.property = request->property;
+        byte_array_to_send = (file_path.prepend("file://")).toUtf8();
       } else if (request->target == kXSpecialGnomeCopiedFiles) {
-        QByteArray byte_array_to_send =
+        byte_array_to_send =
             (QString("copy\n%1").arg(file_path)).toUtf8();
-        XChangeProperty(display, request->requestor, request->property,
-                        request->target, 8, PropModeReplace,
-                        (unsigned char*)byte_array_to_send.constData(),
-                        byte_array_to_send.size());
-
-        response.xselection.property = request->property;
       } else if (request->target == kAtomMultiple ||
                  request->target == kAtomSaveTargets) {
-        // ok but empty
+        // ok and empty
+      }
+
+      if (byte_array_to_send.size()) {
+        XChangeProperty(display, request->requestor, request->property,
+                        request->target, 8, PropModeReplace,
+                        (unsigned char*)byte_array_to_send.constData(),
+                        byte_array_to_send.size());
+
+        response.xselection.property = request->property;
       }
 
       response.xselection.display = request->display;
@@ -202,6 +188,4 @@ void ClipboardX11::CopyFile(const QString& file_path_rhs) {
       XFlush(display);
     }
   }
-
-  XCloseDisplay(display);
 }
